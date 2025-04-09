@@ -98,7 +98,7 @@ def get_data(num_blocks: int, contract_address: str, start_blocks: int = 2222438
                         # Append dictionary to transactions
                         transactions.append(transfer_data)
         except Exception as e:
-            print(f"Error processing block {block_number}: {e}")
+            print(f"Error processing block {block_number}: {e}!!!")
             continue
     try:
         df = pd.DataFrame(transactions)
