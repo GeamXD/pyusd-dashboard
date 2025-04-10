@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import plotly.express as px
+from myhelpers import get_and_format
 
 def get_metrics(dataframe: pd.DataFrame)-> dict:
     """
@@ -10,6 +11,14 @@ def get_metrics(dataframe: pd.DataFrame)-> dict:
     Returns:
         Dictionary containing all dashboard metrics and values
     """
+    # Eth price
+    eth_price = get_and_format()[1]
+    
+    # Format amount
+    dataframe['amount'] = round(dataframe['amount'], 3)
+    # Add gas fee usd
+    dataframe['gas_fees_usd'] = dataframe['gas_fees_eth'].apply(lambda x: round(x * float(eth_price), 3))
+
     # New dataframe and set time as index
     dataframe['timestamp'] = pd.to_datetime(dataframe['timestamp'])
     dataframe.set_index('timestamp', inplace=True)
@@ -244,25 +253,115 @@ def get_metrics(dataframe: pd.DataFrame)-> dict:
     gas_fee_eth_by_mnth = dataframe.resample('ME')['gas_fees_eth'].count()
 
     # Hourly amounts
-    hr_fee = new_df.resample('h')['gas_fees_eth'].sum()
+    hr_fee = dataframe.resample('h')['gas_fees_eth'].sum()
     # Hourly averages
-    hr_avg_fee = new_df.resample('h')['gas_fees_eth'].mean()
+    hr_avg_fee = dataframe.resample('h')['gas_fees_eth'].mean()
     # daily amounts
-    day_fee = new_df.resample('d')['gas_fees_eth'].sum()
+    day_fee = dataframe.resample('d')['gas_fees_eth'].sum()
     # daily averages
-    day_avg_fee = new_df.resample('d')['gas_fees_eth'].mean()
+    day_avg_fee = dataframe.resample('d')['gas_fees_eth'].mean()
     # weekly amounts
-    week_fee = new_df.resample('W')['gas_fees_eth'].sum()
+    week_fee = dataframe.resample('W')['gas_fees_eth'].sum()
     # weekly averages
-    week_avg_fee = new_df.resample('W')['gas_fees_eth'].mean()
+    week_avg_fee = dataframe.resample('W')['gas_fees_eth'].mean()
     # monthly amounts
-    mnth_fee = new_df.resample('ME')['gas_fees_eth'].sum()
+    mnth_fee = dataframe.resample('ME')['gas_fees_eth'].sum()
     # monthly averages
-    mnth_avg_fee = new_df.resample('ME')['gas_fees_eth'].mean()
+    mnth_avg_fee = dataframe.resample('ME')['gas_fees_eth'].mean()
 
     # By block number
-    block_fee = new_df.groupby('block_number')['gas_fees_eth'].sum()
-    block_avg_fee = new_df.groupby('block_number')['gas_fees_eth'].mean()
-    block_amt = new_df.groupby('block_number')['amount'].sum()
-    block_avg_amt = new_df.groupby('block_number')['amount'].mean()
-    block_trans_cnt = new_df.groupby('block_number')['tx_hash'].count()
+    block_fee = dataframe.groupby('block_number')['gas_fees_eth'].sum()
+    block_avg_fee = dataframe.groupby('block_number')['gas_fees_eth'].mean()
+    block_amt = dataframe.groupby('block_number')['amount'].sum()
+    block_avg_amt = dataframe.groupby('block_number')['amount'].mean()
+    block_trans_cnt = dataframe.groupby('block_number')['tx_hash'].count()
+
+    # top senders
+    top_senders = dataframe['from_address'].value_counts().head(10)
+    # top receivers
+    top_receivers = dataframe['to_address'].value_counts().head(10)
+
+    # top senders amount
+    top_senders_amount = dataframe.groupby('from_address')['amount'].sum().sort_values(ascending=False).head(10)
+    # top receivers amount
+    top_receivers_amount = dataframe.groupby('to_address')['amount'].sum().sort_values(ascending=False).head(10)
+
+    # Transaction health score
+    dataframe['transaction_health_score'] = dataframe['gas_fees_usd'] * 100 / dataframe['amount']
+    dataframe['transaction_health_score'] = dataframe['transaction_health_score'].replace([np.inf, -np.inf], -9999)
+
+    # Score label
+    def score_label(score):
+        if score <= 0:
+            return 'Extremely bad'
+        elif score > 0 and score < 10:
+            return 'Excellent'
+        elif score >= 10 and score < 20:
+            return 'Good'
+        elif score >= 20 and score < 30:
+            return 'Fair'
+        else:
+            return 'Poor'
+    dataframe['transaction_health_score_label'] = dataframe['transaction_health_score'].apply(score_label)
+
+    # to be updated
+    metrics_dict = {
+        'total_transaction_volume': total_transaction_volume,
+        'unique_senders': unique_senders,
+        'unique_receivers': unique_receivers,
+        'average_transaction_amount': average_transaction_amount,
+        'daily_reach': daily_reach,
+        'total_revenue': total_revenue,
+        'average_revenue_per_transaction': average_revenue_per_transaction,
+        'active_wallets': active_wallets,
+        'active_wal_daily': active_wal_daily,
+        'active_wal_wkly': active_wal_wkly,
+        'active_wal_montly': active_wal_montly,
+        'retention_rate': retention_rate,
+        'reten_fig': reten_fig,
+        'top_holders': top_holders,
+        'daily_swaps': daily_swaps,
+        'wkly_swaps': wkly_swaps,
+        'monthly_swaps': monthly_swaps,
+        'uniswapv3_daily_swaps': uniswapv3_daily_swaps,
+        'uniswapv3_wkly_swaps': uniswapv3_wkly_swaps,
+        'uniswapv3_monthly_swaps': uniswapv3_monthly_swaps,
+        'uniswapv2_daily_swaps': uniswapv2_daily_swaps,
+        'uniswapv2_wkly_swaps': uniswapv2_wkly_swaps,
+        'uniswapv2_monthly_swaps': uniswapv2_monthly_swaps,
+        'transact_vol_by_hour': transact_vol_by_hour,
+        'transact_vol_by_day': transact_vol_by_day,
+        'transact_vol_by_week': transact_vol_by_week,
+        'transact_vol_by_mnth': transact_vol_by_mnth,
+        'hr_amounts': hr_amounts,
+        'hr_avg': hr_avg,
+        'day_amounts': day_amounts,
+        'day_avg': day_avg,
+        'week_amounts': week_amounts,
+        'week_avg': week_avg,
+        'mnth_amounts': mnth_amounts,
+        'mnth_avg': mnth_avg,
+        'gas_fee_eth_by_hour': gas_fee_eth_by_hour,
+        'gas_fee_eth_by_day': gas_fee_eth_by_day,
+        'gas_fee_eth_by_week': gas_fee_eth_by_week,
+        'gas_fee_eth_by_mnth': gas_fee_eth_by_mnth,
+        'hr_fee': hr_fee,
+        'hr_avg_fee': hr_avg_fee,
+        'day_fee': day_fee,
+        'day_avg_fee': day_avg_fee,
+        'week_fee': week_fee,
+        'week_avg_fee': week_avg_fee,
+        'mnth_fee': mnth_fee,
+        'mnth_avg_fee': mnth_avg_fee,
+        'block_fee': block_fee,
+        'block_avg_fee': block_avg_fee,
+        'block_amt': block_amt,
+        'block_avg_amt': block_avg_amt,
+        'block_trans_cnt': block_trans_cnt,
+        'top_senders': top_senders,
+        'top_receivers': top_receivers,
+        'top_senders_amount': top_senders_amount,
+        'top_receivers_amount': top_receivers_amount,
+        'dataframe': dataframe
+    }
+    return metrics_dict

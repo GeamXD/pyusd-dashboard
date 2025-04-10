@@ -1,7 +1,20 @@
 import streamlit as st
 import requests
 from datetime import datetime
+import gspread
+import numpy as np
+from google.oauth2.service_account import Credentials
+import time
+import pandas as pd
+from datetime import datetime
 
+# Define the scope and authorize the service account
+SCOPES = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+CREDS = Credentials.from_service_account_info(st.secrets['gcp_service_account'], scopes=SCOPES)
+# Auth
+gc = gspread.authorize(CREDS)
+
+# Get key for etherscan
 etherscan_ky = st.secrets['etherscan_key']['api_key']
 
 def get_token_supply(api_key, contract_address)-> str:
@@ -90,3 +103,51 @@ def get_and_format(contract_address: str = '0x6c3ea9036406852006290770BEdFcAbA0e
 
     # Return
     return token_supply_formated, eth_price_formated, eth_timestamp_formated
+
+def upload_sheets(df: pd.DataFrame):
+    # Clean df timestamp for sheets
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['timestamp'] = df['timestamp'].dt.date
+    df.rename(columns={'timestamp': 'date'}, inplace=True)
+    df['date'] = df['date'].astype(str)
+    df.sort_values(by='date', inplace=True)
+
+    # Open the Google Sheet
+    SHEET_NAME = "PYUSD SHEETS"
+
+    # Open spreadsheet
+    try:
+        sheet = gc.open(SHEET_NAME).sheet1
+    except Exception as e:
+        print(f'Error: {e}')
+
+    # Ensure the sheet has headers
+    headers = ['date', 'block_number', 'from_address',
+            'to_address', 'tx_hash', 'amount', 'gas_fees_eth', 'gas_fees_usd']
+    if not ensure_headers(sheet, headers):
+        raise ValueError("Sheet headers don't match expected format")
+
+    # Upload Data to spreadsheet
+    try:
+        sheet.update(range_name='A2', values=df.values.tolist(), raw=False)
+        print(f'\n {SHEET_NAME} successfully update')
+    except Exception as e:
+        print(f'Error: {e}')
+
+def append_sheets(df):
+    
+    # Open the Google Sheet
+    SHEET_NAME = "PYUSD SHEETS"
+    
+    # Open spreadsheet
+    try:
+        sheet = gc.open(SHEET_NAME).sheet1
+    except Exception as e:
+        print(f'Error: {e}')
+
+    # # Append future data to sheets
+    # try:
+    #     sheet.append_rows(df_new.values.tolist(), value_input_option='USER_ENTERED')
+    #     print(f'\n {SHEET_NAME} successfully appended')
+    # except Exception as e:
+    #     print(f'Error: {e}')

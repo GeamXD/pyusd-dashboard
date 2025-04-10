@@ -1,2 +1,2 @@
 .streamlit/secrets.toml
-.kaggle
+.kaggle/kaggle.json
