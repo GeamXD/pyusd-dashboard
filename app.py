@@ -1,24 +1,173 @@
 import json
-import requests
 from web3 import Web3
 import gspread
 import numpy as np
 from google.oauth2.service_account import Credentials
-import time
 import pandas as pd
-from datetime import datetime
-from prophet.plot import plot_plotly, plot_components_plotly
-from prophet import Prophet
-import plotly.express as px
 import streamlit as st
+import streamlit_shadcn_ui as ui
 
 # User defined imports
-from getdata import get_data as gd
+from get_kaggle_data import get_kaggle_df # tie to a condition or button
+from getmetrics import get_metrics
+from myhelpers import get_and_format
+from myhelpers import upload_sheets, append_sheets
 
-# Get latest blocks:
-c_a = '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8'
-df_new = gd(num_blocks=100, contract_address=c_a)
+##  Set page config
+st.set_page_config(
+    page_title='PYUSD Dashboard',
+    layout='wide',
+    page_icon=':material/developer_board:',
+    initial_sidebar_state='collapsed',
+)
 
+#### TITLE
+st.markdown(
+    "<h1 style='text-align: center;'><span style='color: blue;'>PYUSD</span> Dashboard</h1>",
+    unsafe_allow_html=True)
+st.write('')
+
+# Get supply data and eth price
+# ethersn_data = get_and_format()
+ethersn_data = 'M k p'
+tkn_supply = ethersn_data[0]
+eth_price = ethersn_data[1]
+eth_price_timestamp = ethersn_data[2]
+
+# Get metrics dict
+
+
+# update data source
+update_data_cont = st.columns(8)
+with update_data_cont[0]:
+    st.markdown(f'ETH:${eth_price} {eth_price_timestamp}',
+                help='Shows latest ETH Price applied to data')
+with update_data_cont[-1]:
+    update_data = st.button(label='**Latest**', 
+                            help='Gets the latest pyusd data',
+                            on_click=get_kaggle_df,
+                            use_container_width=True,
+                            icon='🚨')
+
+
+### Sidebar
+with st.sidebar:
+    st.subheader('Navigation')
+    st.write(':material/home: [Home](#pyusd-dashboard-interactive-app)')
+    st.write(':material/contact_page: [Contact Me](#contact-page-contact-me)')
+    # Filters
+    st.subheader('Filter', divider=True)
+    # Date
+    filter_date = st.date_input('Select date')
+
+### PYUSD Dashboard
+metrics_cols = st.columns(5)
+with metrics_cols[0]:
+    ui.metric_card(title="Total Supply",
+                   content=f"${tkn_supply} M",
+                   description="PYUSD Total Supply (millions)", key="card1")
+with metrics_cols[1]:
+    ui.metric_card(title="Total Transactions",
+                   content="567",
+                   description="+10.5% from last month", key="card2")
+with metrics_cols[2]:
+    ui.metric_card(title="Total Transaction Volume",
+                   content="$123,456.78",
+                   description="+15.3% from last month", key="card3")
+with metrics_cols[3]:
+    ui.metric_card(title="Active Wallets",
+                   content="$1,234.56",
+                   description="+8.7% from last month", key="card4")
+with metrics_cols[4]:
+    ui.metric_card(title="Total Revenue",
+                   content="$45,231.89",
+                   description="+20.1% from last month", key="card5")
+
+# Create tabs
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["**Reach**", "**Retention**", "**Revenue**", "**Swaps [dex]**", '**Health Score**'])
+
+
+# Reach
+with tab1:
+    st.write('news')
+
+
+# Retention
+with tab2:
+    st.write('reten')
+
+# Revenue
+with tab3:
+    st.write('retention')
+
+# Swaps
+with tab4:
+    st.write('swaps')
+
+# Health score
+with tab5:
+    st.write('score')
+
+
+
+#### Upload to sheets
+# upld_sheets = st.button('Upload to Google Sheets',
+#                         help='Uploads complete data to sheets',
+#                         on_click='',
+#                         args=(df,))
+# appnd_sheets = st.button('Append latest to Google Sheets',
+#                          help='Appends most recent to sheets',
+#                          on_click='',
+#                          args=(df,))
+
+
+# # First row of visuals
+# first_col = st.columns(3)
+# with first_col[0]:
+#     # Bar chart
+#     st_slope_con = st.container(border=True)
+#     st_slope_con.plotly_chart([], use_container_width=True)
+#     # Pie chart
+#     diesase_stat_con = st.container(border=True)
+#     diesase_stat_con.plotly_chart([], use_container_width=True)
+# with first_col[1]:
+#     # Histogram
+#     mx_hr = st.container(border=True)
+#     mx_hr.plotly_chart([], use_container_width=True)
+# with first_col[2]:
+#     # bar chart
+#     chst_con = st.container(border=True)
+#     chst_con.plotly_chart([], use_container_width=True)
+#     # bar chart
+#     rest_con = st.container(border=True)
+#     rest_con.plotly_chart([], use_container_width=True)
+
+# # Second row of visuals
+# second_col = st.columns(3)
+# with second_col[0]:
+#     # Bar chart
+#     age_con = st.container(border=True)
+#     age_con.plotly_chart([], use_container_width=True)
+# with second_col[1]:
+#     # bar chart
+#     fbs_con = st.container(border=True)
+#     fbs_con.plotly_chart([], use_container_width=True)
+# with second_col[2]:
+#     # bar chart
+#     chol_con = st.container(border=True)
+#     chol_con.plotly_chart([], use_container_width=True)
+
+
+# # Final Row
+# final_row = st.columns(2)
+# with final_row[0]:
+#     # Histogram
+#     age_h_con = st.container(border=True)
+#     age_h_con.plotly_chart([], use_container_width=True)
+# with final_row[1]:
+#     # Histogram
+#     chol_hst_con = st.container(border=True)
+#     chol_hst_con.plotly_chart([], use_container_width=True)
 
 
 

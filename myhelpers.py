@@ -4,9 +4,9 @@ from datetime import datetime
 import gspread
 import numpy as np
 from google.oauth2.service_account import Credentials
-import time
 import pandas as pd
 from datetime import datetime
+import plotly.express as px
 
 # Define the scope and authorize the service account
 SCOPES = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -99,18 +99,124 @@ def get_and_format(contract_address: str = '0x6c3ea9036406852006290770BEdFcAbA0e
     # Format eth price
     eth_price_formated = round(float(eth_price[0]), 3)
     # Format eth price timestamp
-    eth_timestamp_formated = datetime.fromtimestamp(int(eth_price[1])).strftime("%Y-%m-%d %H:%M:%S")
+    eth_timestamp_formated = datetime.fromtimestamp(int(eth_price[1])).strftime("%d-%m-%Y %H:%M:%S")
 
     # Return
     return token_supply_formated, eth_price_formated, eth_timestamp_formated
 
+
+def make_line_plots(df: pd.DataFrame,
+                    y_col: str,
+                    title: str,
+                    multi_vars: list,
+                    var_name: str,
+                    value_name: str,
+                    multicols: bool=False) -> px.line:
+    """
+    Makes a plotly line plot
+    Params:
+        df: pandas dataframe of pyusd
+        y_col: str,
+        title: str,
+        multi_vars: list,
+        var_name: str,
+        value_name: str,
+        multicols: bool=False
+    Returns:
+        Plotly object
+    """
+    # reset index to get timestamp
+    df.reset_index(inplace=True)
+    
+    if multicols:
+        # melt cols
+        df_melted = df.melt(id_vars='timestamp',
+                            value_vars=multi_vars,
+                            var_name=var_name,
+                            value_name=value_name)
+        # Create fig
+        fig = px.line(
+            data_frame=df_melted,
+            x='timestamp',
+            color=var_name,
+            y=value_name,
+            markers=True,
+            title=title
+        )
+        
+        # Fig layout
+        fig.update_layout(
+            height=500,
+            width=600,
+            xaxis_title='Date'
+        )
+    else:
+        # Create fig
+        fig = px.line(
+            data_frame=df,
+            x='timestamp',
+            y=y_col,
+            markers=True,
+            title=title
+        )
+        
+        # Fig layout
+        fig.update_layout(
+            height=500,
+            width=600,
+            xaxis_title='Date'
+        )
+
+    return fig
+
+def make_bar(df: pd.DataFrame, x_col: str,
+             y_col: str,
+             title: str,
+             y_axis_title: str,
+             x_axis_title: str) -> px.bar:
+    """
+    Makes a simple bar plot
+    Params:
+        df: pd.DataFrame
+        x_col: str
+        y_col: str,
+        title: str,
+        y_axis_title: str,
+        x_axis_title: str
+    Returns:
+        Plotly object
+    """
+    # Create fig
+    fig = px.bar(
+        data_frame=df,
+        x=x_col,
+        y=y_col,
+        title=title,
+        text_auto=True
+    )
+    
+    fig.update_layout(
+        width=600,
+        height = 500,
+        xaxis_title = x_axis_title,
+        yaxis_title=y_axis_title
+    )
+    
+    return fig
+
+
 def upload_sheets(df: pd.DataFrame):
+    """
+    Uploads whole dataframe to google sheets
+    Params:
+        df: Dataframe containing pyusd data
+    """
     # Clean df timestamp for sheets
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     df['timestamp'] = df['timestamp'].dt.date
     df.rename(columns={'timestamp': 'date'}, inplace=True)
     df['date'] = df['date'].astype(str)
-    df.sort_values(by='date', inplace=True)
+    df.sort_values(by='date', ascending=True, inplace=True)
 
     # Open the Google Sheet
     SHEET_NAME = "PYUSD SHEETS"
@@ -120,22 +226,27 @@ def upload_sheets(df: pd.DataFrame):
         sheet = gc.open(SHEET_NAME).sheet1
     except Exception as e:
         print(f'Error: {e}')
-
-    # Ensure the sheet has headers
-    headers = ['date', 'block_number', 'from_address',
-            'to_address', 'tx_hash', 'amount', 'gas_fees_eth', 'gas_fees_usd']
-    if not ensure_headers(sheet, headers):
-        raise ValueError("Sheet headers don't match expected format")
+        st.error('Failed to open sheet')
 
     # Upload Data to spreadsheet
     try:
         sheet.update(range_name='A2', values=df.values.tolist(), raw=False)
         print(f'\n {SHEET_NAME} successfully update')
+        # Toast
+        st.toast(f'{SHEET_NAME} successfully uploaded')
+        # Url
+        st.markdown("""
+            [PYUSD SHEETS](https://docs.google.com/spreadsheets/d/1V84W8vQ1s0nzORT0RhopTT2VtqhvLUKmnUvpxMzN7Sw/edit?usp=sharing)""")
     except Exception as e:
         print(f'Error: {e}')
 
-def append_sheets(df):
-    
+
+def append_sheets(df: pd.DataFrame):
+    """
+    Appends most recent rows to google sheets
+    Params:
+        df: Dataframe containing pyusd data
+    """
     # Open the Google Sheet
     SHEET_NAME = "PYUSD SHEETS"
     
@@ -145,9 +256,22 @@ def append_sheets(df):
     except Exception as e:
         print(f'Error: {e}')
 
-    # # Append future data to sheets
-    # try:
-    #     sheet.append_rows(df_new.values.tolist(), value_input_option='USER_ENTERED')
-    #     print(f'\n {SHEET_NAME} successfully appended')
-    # except Exception as e:
-    #     print(f'Error: {e}')
+    # Get last row in sheets
+    last_row = sheet.row_count
+    # Get latest block
+    latest_block = int(sheet.cell(last_row, 2).value)
+
+    # check if latest block matches
+    if df['block_number'].max() == latest_block:
+        st.warning('Sheet is up-to-date')
+    elif df['block_number'].max() > latest_block:
+        # Subset most recent data
+        df = df[df['block_number'] > latest_block]    
+        # Append future data to sheets
+        try:
+            sheet.append_rows(df.values.tolist(), value_input_option='USER_ENTERED')
+            st.toast(f'\n {SHEET_NAME} successfully appended')
+            st.markdown("""
+            [PYUSD SHEETS](https://docs.google.com/spreadsheets/d/1V84W8vQ1s0nzORT0RhopTT2VtqhvLUKmnUvpxMzN7Sw/edit?usp=sharing)""")
+        except Exception as e:
+            print(f'Error: {e}')
