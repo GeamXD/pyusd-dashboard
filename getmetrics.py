@@ -2,7 +2,10 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from myhelpers import get_and_format
+import streamlit as st
 
+
+@st.cache_data
 def get_metrics(dataframe: pd.DataFrame)-> dict:
     """
     Gets dashboard metrics and values
@@ -24,10 +27,11 @@ def get_metrics(dataframe: pd.DataFrame)-> dict:
     dataframe.set_index('timestamp', inplace=True)
 
     # Total transaction volume
-    total_transaction_volume = dataframe['amount'].sum()
+    total_transaction_volume = round(dataframe['amount'].sum() / 10**9, 2)
     
     # Total transaction count
-    total_transaction_cnt = dataframe['tx_hash'].nunique()
+    total_transaction_cnt = round(dataframe['tx_hash'].nunique() / 10**3, 2)
+    
     # # Unique senders and receivers
     # unique_senders = dataframe['from_address'].nunique()
     # unique_receivers = dataframe['to_address'].nunique()
@@ -39,13 +43,14 @@ def get_metrics(dataframe: pd.DataFrame)-> dict:
     daily_reach = dataframe.resample('d')['from_address','to_address'].nunique()
 
     # Total revenue
-    total_revenue = dataframe['gas_fees_usd'].sum()
+    total_revenue = round(dataframe['gas_fees_usd'].sum() / 10**3, 2)
 
     # Average revenue per transaction
     # average_revenue_per_transaction = dataframe['gas_fees_usd'].mean()
 
     # Active wallets
     active_wallets = dataframe[['from_address', 'to_address']].melt(value_name='wallet')['wallet'].nunique()
+    active_wallets = round(active_wallets / 10**3, 2)
 
     # Active wallets -- daily -- weekly --monthly
     dataframe['date'] = dataframe.index.date

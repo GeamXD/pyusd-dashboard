@@ -99,7 +99,7 @@ def get_and_format(contract_address: str = '0x6c3ea9036406852006290770BEdFcAbA0e
     # Format eth price
     eth_price_formated = round(float(eth_price[0]), 3)
     # Format eth price timestamp
-    eth_timestamp_formated = datetime.fromtimestamp(int(eth_price[1])).strftime("%d-%m-%Y %H:%M:%S")
+    eth_timestamp_formated = datetime.fromtimestamp(int(eth_price[1])).strftime("%B %d, %Y %H:%M")
 
     # Return
     return token_supply_formated, eth_price_formated, eth_timestamp_formated

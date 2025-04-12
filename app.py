@@ -12,6 +12,7 @@ from get_kaggle_data import get_kaggle_df # tie to a condition or button
 from getmetrics import get_metrics
 from myhelpers import get_and_format
 from myhelpers import upload_sheets, append_sheets
+from myhelpers import make_line_plots, make_bar
 
 ##  Set page config
 st.set_page_config(
@@ -22,9 +23,17 @@ st.set_page_config(
 )
 
 #### TITLE
+# st.markdown(
+#     "<h1 style='text-align: center;'><span style='color: Orange;'>PYUSD</span> Dashboard</h1>",
+#     unsafe_allow_html=True)
 st.markdown(
-    "<h1 style='text-align: center;'><span style='color: blue;'>PYUSD</span> Dashboard</h1>",
-    unsafe_allow_html=True)
+    """
+    <h1 style='text-align: center;'>
+        PYUSD Dashboard
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
 st.write('')
 
 # Get supply data and eth price
@@ -33,9 +42,6 @@ ethersn_data = 'M k p'
 tkn_supply = ethersn_data[0]
 eth_price = ethersn_data[1]
 eth_price_timestamp = ethersn_data[2]
-
-# Get metrics dict
-
 
 # update data source
 update_data_cont = st.columns(8)
@@ -60,31 +66,68 @@ with st.sidebar:
     # Date
     filter_date = st.date_input('Select date')
 
+
+
+# Load dataset
+@st.cache_data
+def get_df() -> pd.DataFrame:
+    """
+    Loads the csv
+    """
+    df = pd.read_csv('dataset/pyusd.csv')
+    # Drop first column
+    df.drop(df.columns[0], axis=1, inplace=True)
+    return df
+
+# Load df
+df = get_df()
+
+# Get metrics dict
+metrics = get_metrics(df)
+
+# Lastest date
+lt_date = pd.to_datetime(df.iloc[-1, 0]).strftime('%B %d, %Y')
+
 ### PYUSD Dashboard
 metrics_cols = st.columns(5)
 with metrics_cols[0]:
     ui.metric_card(title="Total Supply",
-                   content=f"${tkn_supply} M",
+                   content=f"${tkn_supply}M",
                    description="PYUSD Total Supply (millions)", key="card1")
+
 with metrics_cols[1]:
     ui.metric_card(title="Total Transactions",
-                   content="567",
-                   description="+10.5% from last month", key="card2")
+                   content=f"{metrics['total_transaction_cnt']}K",
+                   description=f"21st March to {lt_date}", key="card2")
+
 with metrics_cols[2]:
     ui.metric_card(title="Total Transaction Volume",
-                   content="$123,456.78",
-                   description="+15.3% from last month", key="card3")
+                   content=f"${metrics['total_transaction_volume']}B",
+                   description=f"21st March to {lt_date}", key="card3")
+
 with metrics_cols[3]:
     ui.metric_card(title="Active Wallets",
-                   content="$1,234.56",
-                   description="+8.7% from last month", key="card4")
+                   content=f"{metrics['active_wallets']}K",
+                   description=f"21st March to {lt_date}", key="card4")
+
 with metrics_cols[4]:
     ui.metric_card(title="Total Revenue",
-                   content="$45,231.89",
-                   description="+20.1% from last month", key="card5")
+                   content=f"${metrics['total_revenue']}K",
+                   description=f"21st March to {lt_date}", key="card5")
+
+# Custom CSS to style tab buttons
+st.markdown("""
+    <style>
+        button[data-baseweb="tab"] {
+            font-size: 24px;
+            margin: 0;
+            width: 100%;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 # Create tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["**Reach**", "**Retention**", "**Revenue**", "**Swaps [dex]**", '**Health Score**'])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["**Reach**", "**Retention**", "**Revenue**", "**Swaps [dex]**", '**Forecast**','**Health Score**'])
 
 
 # Reach
@@ -104,8 +147,12 @@ with tab3:
 with tab4:
     st.write('swaps')
 
-# Health score
+# Forecast
 with tab5:
+    st.write('forecast')
+
+# Health score
+with tab6:
     st.write('score')
 
 

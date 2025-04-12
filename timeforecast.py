@@ -2,8 +2,9 @@ from prophet import Prophet
 from prophet.plot import plot_plotly, plot_components_plotly
 import pandas as pd
 import numpy as np
+import streamlit as st
 
-
+@st.cache_data
 def prophet_forecast(df: pd.DataFrame, column: str, periods: int = 14)-> tuple:
     """
     Forecasts a column in a DataFrame using Prophet.
