@@ -1,8 +1,6 @@
 [theme]
-primaryColor = "#ccf1f1"           # Soft teal - accent
-backgroundColor = "#035dad"        # Deep blue - page background
-secondaryBackgroundColor = "#1e4e8c"  # Muted deep sky blue - widget containers
-# secondaryBackgroundColor = "#2c5fa3"  # Medium soft navy
-
-textColor = "#f4fbfb"              # Very light cyan - readable text
+primaryColor="#14c3c3"
+backgroundColor="#035dad"
+secondaryBackgroundColor="#1e4e8c"
+textColor="#f4fbfb"
 font ='monospace'

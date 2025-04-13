@@ -55,6 +55,16 @@ with update_data_cont[-1]:
                             use_container_width=True,
                             icon='🚨')
 
+# Load dataset
+@st.cache_data
+def get_df() -> pd.DataFrame:
+    """
+    Loads the csv
+    """
+    return pd.read_csv('dataset/pyusd.csv')
+
+# Load df
+df = get_df()
 
 ### Sidebar
 with st.sidebar:
@@ -70,20 +80,18 @@ with st.sidebar:
     # Forecast duration
     forecast_dur = int(st.text_input('Set duration of forecast', value='14'))
 
-    # Upload data
-    upld_sheets_check = st.checkbox('Upload to sheets',
-                                    help='Scroll to bottom of page')
-
-# Load dataset
-@st.cache_data
-def get_df() -> pd.DataFrame:
-    """
-    Loads the csv
-    """
-    return pd.read_csv('dataset/pyusd.csv')
-
-# Load df
-df = get_df()
+    ### Upload to sheets
+    st.markdown('**Upload to Google Sheets**')
+    upld_sheets = st.button('Upload Complete',
+                                help='Uploads complete data to sheets',
+                                on_click=upload_sheets,
+                                args=(df,))
+    appnd_sheets = st.button('Append Existing',
+                             help='Appends most recent to sheets when new data is present',
+                             on_click=append_sheets,
+                             args=(df,))
+    st.markdown("""
+            [PYUSD SHEETS](https://docs.google.com/spreadsheets/d/1V84W8vQ1s0nzORT0RhopTT2VtqhvLUKmnUvpxMzN7Sw/edit?usp=sharing)""")
 
 if confirm_date:
     df['date_filt'] = pd.to_datetime(df['timestamp']).dt.date
@@ -106,22 +114,22 @@ with metrics_cols[0]:
 with metrics_cols[1]:
     ui.metric_card(title="Total Transactions",
                    content=f"{metrics['total_transaction_cnt']}K",
-                   description=f"21 March to {lt_date}", key="card2")
+                   description=f"17 March to {lt_date}", key="card2")
 
 with metrics_cols[2]:
     ui.metric_card(title="Total Transaction Volume",
                    content=f"${metrics['total_transaction_volume']}B",
-                   description=f"21 March to {lt_date}", key="card3")
+                   description=f"17 March to {lt_date}", key="card3")
 
 with metrics_cols[3]:
     ui.metric_card(title="Active Wallets",
                    content=f"{metrics['active_wallets']}K",
-                   description=f"21 March to {lt_date}", key="card4")
+                   description=f"17 March to {lt_date}", key="card4")
 
 with metrics_cols[4]:
     ui.metric_card(title="Total Revenue",
                    content=f"${metrics['total_revenue']}K",
-                   description=f"21 March to {lt_date}", key="card5")
+                   description=f"17 March to {lt_date}", key="card5")
 
 # Custom CSS to style tab buttons
 st.markdown("""
@@ -544,18 +552,3 @@ with tab6:
             mode='v'
         ))
 
-### Upload to sheets
-gg_sheets = st.columns(2)
-if upld_sheets_check:
-    with gg_sheets[0]:
-        upld_sheets = st.button('Upload to Google Sheets',
-                            help='Uploads complete data to sheets',
-                            on_click=upload_sheets,
-                            args=(df,),
-                            use_container_width=True)
-    with gg_sheets[1]:
-        appnd_sheets = st.button('Append latest to Google Sheets',
-                             help='Appends most recent to sheets',
-                             on_click=append_sheets,
-                             args=(df,),
-                             use_container_width=True)

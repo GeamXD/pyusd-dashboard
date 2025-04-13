@@ -8,12 +8,6 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# Define the scope and authorize the service account
-SCOPES = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-CREDS = Credentials.from_service_account_info(st.secrets['gcp_service_account'], scopes=SCOPES)
-# Auth
-gc = gspread.authorize(CREDS)
-
 # Get key for etherscan
 etherscan_ky = st.secrets['etherscan_key']['api_key']
 
@@ -215,6 +209,12 @@ def upload_sheets(df: pd.DataFrame):
     Params:
         df: Dataframe containing pyusd data
     """
+    # Define the scope and authorize the service account
+    SCOPES = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    CREDS = Credentials.from_service_account_info(st.secrets['gcp_service_account'], scopes=SCOPES)
+    # Auth
+    gc = gspread.authorize(CREDS)
+
     # Clean df timestamp for sheets
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     df['timestamp'] = df['timestamp'].dt.date
@@ -227,20 +227,17 @@ def upload_sheets(df: pd.DataFrame):
 
     # Open spreadsheet
     try:
-        sheet = gc.open(SHEET_NAME).sheet1
+        my_sheet = gc.open(SHEET_NAME).sheet1
     except Exception as e:
         print(f'Error: {e}')
         st.error('Failed to open sheet')
 
     # Upload Data to spreadsheet
     try:
-        sheet.update(range_name='A2', values=df.values.tolist(), raw=False)
+        my_sheet.update(range_name='A2', values=df.values.tolist(), raw=False)
         print(f'\n {SHEET_NAME} successfully update')
         # Toast
         st.toast(f'{SHEET_NAME} successfully uploaded')
-        # Url
-        st.markdown("""
-            [PYUSD SHEETS](https://docs.google.com/spreadsheets/d/1V84W8vQ1s0nzORT0RhopTT2VtqhvLUKmnUvpxMzN7Sw/edit?usp=sharing)""")
     except Exception as e:
         print(f'Error: {e}')
 
@@ -251,6 +248,12 @@ def append_sheets(df: pd.DataFrame):
     Params:
         df: Dataframe containing pyusd data
     """
+    # Define the scope and authorize the service account
+    SCOPES = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    CREDS = Credentials.from_service_account_info(st.secrets['gcp_service_account'], scopes=SCOPES)
+    # Auth
+    gc = gspread.authorize(CREDS)
+
     # Open the Google Sheet
     SHEET_NAME = "PYUSD SHEETS"
     
@@ -259,6 +262,7 @@ def append_sheets(df: pd.DataFrame):
         sheet = gc.open(SHEET_NAME).sheet1
     except Exception as e:
         print(f'Error: {e}')
+        st.error('Failed to open sheet')
 
     # Get last row in sheets
     last_row = sheet.row_count
@@ -275,7 +279,5 @@ def append_sheets(df: pd.DataFrame):
         try:
             sheet.append_rows(df.values.tolist(), value_input_option='USER_ENTERED')
             st.toast(f'\n {SHEET_NAME} successfully appended')
-            st.markdown("""
-            [PYUSD SHEETS](https://docs.google.com/spreadsheets/d/1V84W8vQ1s0nzORT0RhopTT2VtqhvLUKmnUvpxMzN7Sw/edit?usp=sharing)""")
         except Exception as e:
             print(f'Error: {e}')
