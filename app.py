@@ -143,7 +143,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Create tabs
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["**Reach**", "**Retention**", "**Revenue**", "**Swaps [dex]**", '**Forecast**','**Health Score**'])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["### **Reach**", "### **Retention**", "### **Revenue**", "### **Swaps [dex]**", '### **Forecast**','### **Health Score**'])
 
 
 # Reach
