@@ -121,6 +121,6 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 For questions or feedback, feel free to reach out:
 
 - GitHub: [GeamXD](https://github.com/GeamXD)
-- Email: *(Add your email address if you wish)*
+- Email: *(musa.godwin8112@gmail.com)*
 
 ---
