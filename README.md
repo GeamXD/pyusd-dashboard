@@ -1,9 +1,9 @@
------
-
 # PYUSD On-Chain Analytics Dashboard
 
 * **[Live Demo](https://pyusd-dashboard.streamlit.app/)**
-    ![PYUSD Dashboard Screenshot](screenshots/PYUSD-Dashboard-·-Streamlit.png)
+* **[Dashboard Link](https://pyusd-dashboard.streamlit.app/)**
+* PYUSD Dashboard Screenshot
+![PYUSD Dashboard Screenshot](screenshots/PYUSD-Dashboard-·-Streamlit.png)
 
 ## Overview
 
@@ -28,19 +28,14 @@ The processed data is presented through an interactive dashboard built with Stre
 
 This project aims to excel based on the following:
 
-* **Innovation and Creativity (40%):**
   * **Originality:** Provides a focused PYUSD analytics solution beyond generic block explorers. Introduces a novel "Health Score" metric.
   * **Cutting Edge Concepts:** Leverages GCP's unique offering (free access to intensive RPC methods) to perform deep PYUSD analysis that might be cost-prohibitive otherwise. Explores practical application of advanced blockchain data analysis for a specific, significant stablecoin.
-* **Pushing the Limits of What’s Possible (25%):**
   * **Effective Use of Computationally Expensive Methods:** Utilizes GCP's Blockchain Node Service potentially employing methods like `trace_block` or `trace_transaction` (via Web3.py) to gather rich data for analytics (e.g., internal transactions, detailed event logs relevant to PYUSD transfers and swaps).
   * **Demonstration of GCP's Advantages:** Showcases how GCP's infrastructure enables sophisticated on-chain analysis for PYUSD without incurring typical high costs associated with intensive RPC calls, democratizing access to such insights.
-* **Functionality and Relevance (20%):**
   * **Effective Utilization:** Directly uses GCP's Blockchain Node Service and PYUSD data to deliver concrete KPIs (Reach, Retention, Revenue, Swaps, Health Score). Addresses the real-world need for monitoring stablecoin performance and adoption.
   * **Relevance:** Highly relevant to current trends in stablecoins, DeFi, and the need for transparent on-chain analytics. Offers valuable insights for PYUSD's issuer (Paxos) and the financial ecosystem interacting with it.
-* **Accessibility (10%):**
   * **User-Friendliness:** Features an intuitive Streamlit interface with filters and clear visualizations. Data export options (CSV, Google Sheets) enhance accessibility for users with varying technical skills. The core logic can be understood and potentially adapted by other developers.
   * **Adoption Potential:** Designed for ease of use, with potential for wider adoption by analysts or organizations needing dedicated PYUSD monitoring.
-* **Quality of Documentation (5%):**
   * **Clarity and Comprehensiveness:** This README aims to clearly explain the project's purpose, setup, usage, and technical underpinnings. *(Self-assessment criterion)*
 
 ## Features
@@ -59,12 +54,12 @@ This project aims to excel based on the following:
 
 * **Programming Language**: Python (100%)
 * **Frameworks**: Streamlit
-* **Libraries**: Web3.py, Pandas, Plotly (or other plotting library), gspread, oauth2client, google-api-python-client
+* **Libraries**: Web3.py, Pandas, Plotly, gspread
 * **Cloud Services/APIs**:
   * Google Cloud Blockchain Node Service (Ethereum)
   * Google Drive API
   * Google Sheets API
-* **Data Processing**: Kaggle Notebooks (for scheduled data retrieval)
+* **Data Processing**: Kaggle **[Notebooks](https://www.kaggle.com/code/musagodwin/crypto-pyusd-data)** (for scheduled data retrieval)
 
 ## Getting Started
 
@@ -101,10 +96,28 @@ Ensure you have the following installed and configured:
 
 2. **Configure Google Cloud Credentials**:
 
-      * Rename your downloaded Service Account key file to `credentials.json`.
-      * Place the `credentials.json` file in the root directory of the cloned project (`pyusd-dashboard/`).
-      * **(Security Note):** Ensure `credentials.json` is added to your `.gitignore` file to prevent accidental commits of sensitive keys.
-      * You may need to configure the specific Google Sheet ID and GCP RPC endpoint URL within the application's configuration or code (e.g., in a `config.py` file or directly where used). *(Update this based on your actual implementation)*
+    - **Download the service account key** from your GCP project (in JSON format).  
+    - **Open the JSON file** and copy its contents.
+    - **Create a `secrets.toml` file** in your Streamlit project directory (`.secrets`) and paste the JSON data under a section like this:
+
+        ```toml
+        [gcp_service_account]
+        type = "..."
+        project_id = "..."
+        private_key_id = "..."
+        private_key = "..."
+        client_email = "..."
+        client_id = "..."
+        auth_uri = "..."
+        token_uri = "..."
+        auth_provider_x509_cert_url = "..."
+        client_x509_cert_url = "..."
+        ```
+
+    - **Update your Streamlit app code** to reference this formatted data from `st.secrets["gcp_service_account"]` as needed.
+
+    - **Important:**  
+    Make sure to add `secrets.toml` to your `.gitignore` file to prevent accidentally exposing sensitive credentials.
 
 3. **Create a Virtual Environment** (optional but recommended):
 
@@ -149,19 +162,19 @@ Once the dashboard is running:
 
 ```
 pyusd-dashboard/
-├── app.py                 # Main Streamlit application script
-├── requirements.txt       # List of Python dependencies
-├── credentials.json       # Google Cloud Service Account Key (KEEP PRIVATE - add to .gitignore!)
-├── static/                # Optional: Static files (CSS, images) if needed
-├── templates/             # Optional: HTML templates if used outside Streamlit's core
-├── notebooks/             # Optional: Jupyter/Kaggle notebooks for data retrieval/processing logic
-├── data/                  # Optional: Directory for storing intermediate data files (e.g., CSVs)
-├── .gitignore             # Git ignore file (ensure credentials.json is listed)
-├── LICENSE                # Project license file
-└── README.md              # Project documentation (this file)
+├── LICENSE
+├── README.md
+├── app.py  # Streamlit app
+├── dataset
+│   └── pyusd.csv
+├── get_kaggle_data.py
+├── getmetrics.py
+├── myhelpers.py
+├── requirements.txt
+├── screenshots
+│   └── PYUSD-Dashboard-·-Streamlit.png
+└── timeforecast.py
 ```
-
-*(Adjust the structure above to accurately reflect your repository's layout)*
 
 ## Contribution Guidelines
 
@@ -199,5 +212,3 @@ For questions, feedback, or collaboration inquiries:
 
 * GitHub: [GeamXD](https://github.com/GeamXD)
 * Email: `musa.godwin8112@gmail.com`
-
------
