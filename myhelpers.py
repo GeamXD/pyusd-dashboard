@@ -111,6 +111,7 @@ def make_line_plots(df: pd.DataFrame,
                     multi_vars: list,
                     var_name: str,
                     value_name: str,
+                    y_axis_title: str,
                     multicols: bool=False) -> px.line:
     """
     Makes a plotly line plot
@@ -126,8 +127,6 @@ def make_line_plots(df: pd.DataFrame,
         Plotly object
     """
     # reset index to get timestamp
-    df.reset_index(inplace=True)
-    
     if multicols:
         # melt cols
         df_melted = df.melt(id_vars='timestamp',
@@ -141,20 +140,21 @@ def make_line_plots(df: pd.DataFrame,
             color=var_name,
             y=value_name,
             markers=True,
+            color_discrete_sequence=['#10EEEE', '#ff6347'],
             title=title
         )
         
         # Fig layout
         fig.update_layout(
-            height=500,
-            width=600,
             xaxis_title='Date'
         )
+        fig.update_xaxes(showgrid=False)
+        fig.update_yaxes(showgrid=False)
     else:
         # Create fig
         fig = px.line(
             data_frame=df,
-            x='timestamp',
+            x='date',
             y=y_col,
             markers=True,
             title=title
@@ -162,18 +162,19 @@ def make_line_plots(df: pd.DataFrame,
         
         # Fig layout
         fig.update_layout(
-            height=500,
-            width=600,
-            xaxis_title='Date'
+            xaxis_title='Date',
+            yaxis_title=y_axis_title
         )
-
+        fig.update_xaxes(showgrid=False)
+        fig.update_yaxes(showgrid=False)
     return fig
 
 def make_bar(df: pd.DataFrame, x_col: str,
              y_col: str,
              title: str,
              y_axis_title: str,
-             x_axis_title: str) -> px.bar:
+             x_axis_title: str,
+             mode='v') -> px.bar:
     """
     Makes a simple bar plot
     Params:
@@ -192,16 +193,19 @@ def make_bar(df: pd.DataFrame, x_col: str,
         x=x_col,
         y=y_col,
         title=title,
-        text_auto=True
+        text_auto=True,
+        orientation=mode
     )
     
     fig.update_layout(
-        width=600,
-        height = 500,
         xaxis_title = x_axis_title,
         yaxis_title=y_axis_title
     )
-    
+    fig.update_traces(
+        textposition='outside'
+    )
+    fig.update_xaxes(type='category',showgrid=False)
+    fig.update_yaxes(showgrid=False)
     return fig
 
 

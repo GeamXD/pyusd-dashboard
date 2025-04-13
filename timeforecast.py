@@ -43,7 +43,17 @@ def plot_forecast(model, forecast, column: str)-> tuple:
     """
     fig1 = plot_plotly(model, forecast)
     fig1.update_layout(title=f"Prophet Forecast for {column}")
+    # change line color
+    fig1.update_traces(line=dict(color='#CE3104'))
+    fig1.update_traces(marker=dict(color='#CE3107'))
+    fig1.update_xaxes(showgrid=False)
+    fig1.update_yaxes(showgrid=False)
 
     fig2 = plot_components_plotly(model, forecast)
     fig2.update_layout(title=f"Prophet Forecast Components for {column}")
+    fig2.update_traces(line=dict(color='#CE3107'))
+    fig2.update_traces(marker=dict(color='#CE3104'))
+    fig2.update_xaxes(showgrid=False)
+    fig2.update_yaxes(showgrid=False)
+  
     return fig1, fig2
