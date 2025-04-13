@@ -350,7 +350,7 @@ with tab3:
         avg_fee_hr_con.plotly_chart(make_line_plots(
             df=metrics['hr_avg_fee'],
             y_col='gas_fees_usd',
-            title='Unisawpv3 Daily Swaps',
+            title='Hourly Gas Fees',
             y_axis_title='Gas Fees (USD)',
             multi_vars=[],
             value_name='',
@@ -362,7 +362,7 @@ with tab3:
         wkly_swaps_con.plotly_chart(make_line_plots(
             df=metrics['day_avg_fee'],
             y_col='gas_fees_usd',
-            title='Uniswapv3 Weekly Swaps',
+            title='Daily Gas Fees',
             y_axis_title='Gas Fees (USD)',
             multi_vars=[],
             value_name='',
@@ -374,7 +374,7 @@ with tab3:
         monthly_swaps_con.plotly_chart(make_line_plots(
             df=metrics['week_avg_fee'],
             y_col='gas_fees_usd',
-            title='Uniswapv3 Monthly Swaps',
+            title='Weekly Gas Fees',
             y_axis_title='Gas Fees (USD)',
             multi_vars=[],
             value_name='',
