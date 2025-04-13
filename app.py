@@ -89,11 +89,12 @@ if confirm_date:
     df['date_filt'] = pd.to_datetime(df['timestamp']).dt.date
     df = df[df['date_filt'] >= filter_date]
 
-# Get metrics dict
-metrics = get_metrics(df)
-
 # Lastest date
 lt_date = pd.to_datetime(df['timestamp'].tail(1).values).strftime('%B %d, %Y')[0]
+
+
+# Get metrics dict
+metrics = get_metrics(df)
 
 ### PYUSD Dashboard
 metrics_cols = st.columns(5)
