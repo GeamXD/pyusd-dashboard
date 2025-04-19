@@ -63,8 +63,12 @@ def get_df() -> pd.DataFrame:
     """
     return pd.read_csv('dataset/pyusd.csv')
 
-# Load df
-df = get_df()
+# if update data is clicked
+if update_data:
+    df = get_df()
+    st.toast('Updating to latest dataset')
+else:
+    df = get_df()
 
 ### Sidebar
 with st.sidebar:
