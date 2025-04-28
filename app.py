@@ -112,7 +112,7 @@ metrics_cols = st.columns(5)
 with metrics_cols[0]:
     ui.metric_card(title="Total Supply",
                    content=f"${tkn_supply}M",
-                   description="PYUSD Total Supply (millions)", key="card1")
+                   description="PYUSD Total Supply", key="card1")
 
 with metrics_cols[1]:
     ui.metric_card(title="Total Transactions",
