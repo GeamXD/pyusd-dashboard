@@ -100,7 +100,7 @@ if confirm_date:
     df['date_filt'] = pd.to_datetime(df['timestamp']).dt.date
     df = df[df['date_filt'] >= filter_date]
     # Earliest date
-    earl_date = filter_date.strftime('%d %B')[0]
+    earl_date = filter_date.strftime('%d %B')
 else:
     earl_date = '17 March'
 
