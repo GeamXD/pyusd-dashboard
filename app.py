@@ -56,7 +56,6 @@ with update_data_cont[-1]:
                             icon='🚨')
 
 # Load dataset
-@st.cache_data
 def get_df() -> pd.DataFrame:
     """
     Loads the csv
