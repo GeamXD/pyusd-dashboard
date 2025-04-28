@@ -216,11 +216,11 @@ def upload_sheets(df: pd.DataFrame):
     gc = gspread.authorize(CREDS)
 
     # Clean df timestamp for sheets
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df['timestamp'] = df['timestamp'].dt.date
-    df.rename(columns={'timestamp': 'date'}, inplace=True)
-    df['date'] = df['date'].astype(str)
-    df.sort_values(by='date', ascending=True, inplace=True)
+    # df['timestamp'] = pd.to_datetime(df['timestamp'])
+    # df['timestamp'] = df['timestamp'].dt.date
+    # df.rename(columns={'timestamp': 'date'}, inplace=True)
+    # df['date'] = df['date'].astype(str)
+    # df.sort_values(by='date', ascending=True, inplace=True)
 
     # Open the Google Sheet
     SHEET_NAME = "PYUSD SHEETS"
@@ -244,7 +244,7 @@ def upload_sheets(df: pd.DataFrame):
 
 def append_sheets(df: pd.DataFrame):
     """
-    Appends most recent rows to google sheets
+    Appends most recent roUplows to google sheets
     Params:
         df: Dataframe containing pyusd data
     """
