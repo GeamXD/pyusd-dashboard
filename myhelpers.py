@@ -267,7 +267,8 @@ def append_sheets(df: pd.DataFrame):
     # Get last row in sheets
     last_row = sheet.row_count
     # Get latest block
-    latest_block = int(sheet.cell(last_row, 2).value)
+    latest_block = sheet.cell(last_row, 2).value
+    print(latest_block)
 
     # check if latest block matches
     if df['block_number'].max() == latest_block:
