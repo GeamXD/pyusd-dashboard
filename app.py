@@ -89,10 +89,10 @@ with st.sidebar:
                                 help='Uploads complete data to sheets',
                                 on_click=upload_sheets,
                                 args=(df,))
-    appnd_sheets = st.button('Append Existing',
-                             help='Appends most recent to sheets when new data is present',
-                             on_click=append_sheets,
-                             args=(df,))
+    # appnd_sheets = st.button('Append Existing',
+    #                          help='Appends most recent to sheets when new data is present',
+    #                          on_click=append_sheets,
+    #                          args=(df,))
     st.markdown("""
             [PYUSD SHEETS](https://docs.google.com/spreadsheets/d/1V84W8vQ1s0nzORT0RhopTT2VtqhvLUKmnUvpxMzN7Sw/edit?usp=sharing)""")
 
