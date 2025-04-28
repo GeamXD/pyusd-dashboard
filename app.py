@@ -99,10 +99,14 @@ with st.sidebar:
 if confirm_date:
     df['date_filt'] = pd.to_datetime(df['timestamp']).dt.date
     df = df[df['date_filt'] >= filter_date]
+    # Earliest date
+    earl_date = filter_date.strftime('%d %B')[0]
+else:
+    earl_date = '17 March'
+
 
 # Lastest date
-lt_date = pd.to_datetime(df['timestamp'].tail(1).values).strftime('%B %d, %Y')[0]
-
+lt_date = pd.to_datetime(df['timestamp'].tail(1).values).strftime('%d %B, %Y')[0]
 
 # Get metrics dict
 metrics = get_metrics(df)
@@ -117,22 +121,22 @@ with metrics_cols[0]:
 with metrics_cols[1]:
     ui.metric_card(title="Total Transactions",
                    content=f"{metrics['total_transaction_cnt']}K",
-                   description=f"17 March to {lt_date}", key="card2")
+                   description=f"{earl_date} to {lt_date}", key="card2")
 
 with metrics_cols[2]:
     ui.metric_card(title="Total Transaction Volume",
                    content=f"${metrics['total_transaction_volume']}B",
-                   description=f"17 March to {lt_date}", key="card3")
+                   description=f"{earl_date} to {lt_date}", key="card3")
 
 with metrics_cols[3]:
     ui.metric_card(title="Active Wallets",
                    content=f"{metrics['active_wallets']}K",
-                   description=f"17 March to {lt_date}", key="card4")
+                   description=f"{earl_date} to {lt_date}", key="card4")
 
 with metrics_cols[4]:
     ui.metric_card(title="Total Revenue",
                    content=f"${metrics['total_revenue']}K",
-                   description=f"17 March to {lt_date}", key="card5")
+                   description=f"{earl_date} to {lt_date}", key="card5")
 
 # Custom CSS to style tab buttons
 st.markdown("""
