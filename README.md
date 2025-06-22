@@ -3,7 +3,7 @@
 * **[Live Demo](https://www.canva.com/design/DAGkhGKk4xY/H8NsfR0Sh8o9YoRNCOUG5Q/view?utm_content=DAGkhGKk4xY&utm_campaign=designshare&utm_medium=link2&ut)**
 * **[Dashboard Link](https://pyusd-dashboard.streamlit.app/)**
 * PYUSD Dashboard Screenshot
-![PYUSD Dashboard Screenshot](screenshots/PYUSD-Dashboard-·-Streamlit.png)
+![PYUSD Dashboard Screenshot](https://github.com/GeamXD/pyusd-dashboard/blob/master/screenshots/PYUSD-Dashboard-%C2%B7-Streamlit.png)
 
 ## Overview
 
